@@ -7,7 +7,6 @@ import React from "react";
 import { renderToString } from "react-dom/server";
 
 import { App } from "../client/App";
-// import { getData, modifyAnswerUpvotes } from './database';
 
 const app = new express();
 const port = 7777;
@@ -30,10 +29,13 @@ app.use(express.static("dist"));
 
 app.get("/", async (_req, res) => {
   // const { questions, answers } = await getData();
+  const data = { name: "bob" };
+  const { html, css, ids } = renderStatic(() =>
+    renderToString(<App {...data} />)
+  );
+  // renderToStaticMarkup may be better as it removes react-specific markup that we would not need for static rendering
 
-  const rendered = renderToString(<App />); // this could potentially be all we need to provide to an
-  // renderToStaticMarkup may be better as it removes react-specific markup that we would not need for a static im
-
+  //   console.log("css, ids", css, ids);
   const index = readFileSync(`public/index.html`, `utf8`);
 
   const browser = await puppeteer.launch();
@@ -48,19 +50,37 @@ app.get("/", async (_req, res) => {
     await page.addScriptTag({
       url: "https://unpkg.com/react@16/umd/react.development.js",
     });
-    console.log();
     console.log(`Current directory: ${process.cwd()}`);
-    await page.addScriptTag({ url: "/dist/client.js" });
-    await page.evaluate(
-      (index, rendered) => {
+    // await page.addScriptTag({ url: "/dist/client.js" });
+    await page.setContent(html);
+    const style = await page.evaluate(
+      (index, html, css) => {
+        const head = document.createElement("head");
+        const testDiv = document.createElement("div");
+        // const style = css;
+        const style = document.createElement("style");
+        // style.type = "text/css";
+        head.appendChild(testDiv);
+        // style.appendChild(document.createTextNode(css));
+        document.head.innerHTML = style;
+
+        // // Create our shared stylesheet:
+        // const sheet = new CSSStyleSheet();
+        // sheet.replaceSync(css);
+
+        // // Apply the stylesheet to a document:
+        // document.adoptedStyleSheets = [sheet];
+
         const body = document.createElement("body");
-        body.innerHTML = index.replace("{{rendered}}", rendered);
+        body.innerHTML = index.replace("{{rendered}}", html);
         document.body = body;
+        return document.documentElement;
       },
       index,
-      rendered
+      html,
+      css
     );
-
+    console.log("style", style);
     // // Remove scripts and html imports. They've already executed.
     // await page.evaluate(() => {
     // 	const elements = document.querySelectorAll('script, link[rel="import"]');
@@ -77,7 +97,7 @@ app.get("/", async (_req, res) => {
     return { html, status: 500 };
   }
 
-  res.send(index.replace("{{rendered}}", rendered));
+  res.send(index.replace("{{rendered}}", html));
 });
 
 app.listen(port);
