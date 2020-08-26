@@ -1,18 +1,18 @@
-import express from "express";
-import compression from "compression";
-import { readFileSync } from "fs";
-import { renderStatic } from "glamor/server";
-import puppeteer from "puppeteer";
-import React from "react";
-import { renderToString } from "react-dom/server";
+import express from 'express';
+import compression from 'compression';
+import { readFileSync } from 'fs';
+import { renderStatic } from 'glamor/server';
+import puppeteer from 'puppeteer';
+import React from 'react';
+import { renderToString } from 'react-dom/server';
 
-import { App } from "../client/App";
+import { App } from '../client/App';
 
 const app = new express();
 const port = 7777;
 
 // app.use(compression());
-app.use(express.static("dist"));
+app.use(express.static('dist'));
 
 // app.get("/data", async (_req, res) => {
 
@@ -27,9 +27,9 @@ app.use(express.static("dist"));
 
 // });
 
-app.get("/", async (_req, res) => {
+app.get('/', async (_req, res) => {
   // const { questions, answers } = await getData();
-  const data = { name: "bob" };
+  const data = { name: 'bob' };
   const { html, css, ids } = renderStatic(() =>
     renderToString(<App {...data} />)
   );
@@ -37,7 +37,6 @@ app.get("/", async (_req, res) => {
 
   //   console.log("css, ids", css, ids);
   const index = readFileSync(`public/index.html`, `utf8`);
-
   const browser = await puppeteer.launch();
 
   try {
@@ -48,56 +47,51 @@ app.get("/", async (_req, res) => {
 ></script>
 <script src="client.js"></script> */
     await page.addScriptTag({
-      url: "https://unpkg.com/react@16/umd/react.development.js",
+      url: 'https://unpkg.com/react@16/umd/react.development.js',
     });
     console.log(`Current directory: ${process.cwd()}`);
     // await page.addScriptTag({ url: "/dist/client.js" });
-    await page.setContent(html);
+    // await page.setContent(html);
     const style = await page.evaluate(
       (index, html, css) => {
-        const head = document.createElement("head");
-        const testDiv = document.createElement("div");
-        // const style = css;
-        const style = document.createElement("style");
-        // style.type = "text/css";
-        head.appendChild(testDiv);
-        // style.appendChild(document.createTextNode(css));
-        document.head.innerHTML = style;
+        const head = document.createElement('head');
+        const style = document.createElement('style');
+        style.type = 'text/css';
+        style.appendChild(document.createTextNode(css));
+        document.head.append(style);
 
-        // // Create our shared stylesheet:
-        // const sheet = new CSSStyleSheet();
-        // sheet.replaceSync(css);
+        // Create our shared stylesheet:
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(css);
 
-        // // Apply the stylesheet to a document:
-        // document.adoptedStyleSheets = [sheet];
+        // Apply the stylesheet to a document:
+        document.adoptedStyleSheets = [sheet];
 
-        const body = document.createElement("body");
-        body.innerHTML = index.replace("{{rendered}}", html);
+        const body = document.createElement('body');
+        body.innerHTML = index.replace('{{rendered}}', html);
         document.body = body;
-        return document.documentElement;
       },
       index,
       html,
       css
     );
-    console.log("style", style);
+    console.log('style', style);
     // // Remove scripts and html imports. They've already executed.
     // await page.evaluate(() => {
     // 	const elements = document.querySelectorAll('script, link[rel="import"]');
     // 	elements.forEach(e => e.remove());
     // });
-
-    await page.screenshot({ path: "screenshot.png" });
-
+    await page.screenshot({ path: 'public/screenshot.png' });
+    const puppeteerHTML = await page.content();
+    console.log('puppeteerHTML', puppeteerHTML);
     // Close the page we opened here (not the browser).
     await page.close();
+    res.send(puppeteerHTML);
   } catch (e) {
     const html = e.toString();
     console.warn({ message: `URL Failed with message: ${html}` });
     return { html, status: 500 };
   }
-
-  res.send(index.replace("{{rendered}}", html));
 });
 
 app.listen(port);

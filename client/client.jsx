@@ -1,7 +1,7 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-import { App } from "./App";
+import { App } from './App';
 // import { copyAnswersWithModifiedUpvotes } from '../shared/utility';
 
 // let state = undefined;
@@ -29,5 +29,5 @@ import { App } from "./App";
 
 function render() {
   // console.info("Client:: Rendering application with remote data", state);
-  ReactDOM.hydrate(<App />, document.querySelector("#Container"));
+  ReactDOM.hydrate(<App />, document.querySelector('#Container'));
 }
