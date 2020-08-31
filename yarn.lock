@@ -1107,6 +1107,14 @@
     prop-types "^15.7.2"
     svgo "^1.3.2"
 
+"@pluralsight/ps-design-system-normalize@^4.0.9":
+  version "4.0.9"
+  resolved "http://repository.vnerd.com/artifactory/api/npm/npm-pluralsight/@pluralsight/ps-design-system-normalize/-/ps-design-system-normalize-4.0.9.tgz#312d805f39f1406a9838877f78aa6fbabe96102e"
+  integrity sha1-MS2AXznxQGqYOId/eKpvur6WEC4=
+  dependencies:
+    "@pluralsight/ps-design-system-core" "^6.4.0"
+    normalize.css "^8.0.1"
+
 "@pluralsight/ps-design-system-theme@^4.0.11":
   version "4.0.11"
   resolved "http://repository.vnerd.com/artifactory/api/npm/npm-pluralsight/@pluralsight/ps-design-system-theme/-/ps-design-system-theme-4.0.11.tgz#183216ebe808f50bc8a64eb2b779d5b2bb67f1bf"
@@ -5330,6 +5338,11 @@ normalize-url@^4.1.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-4.5.0.tgz#453354087e6ca96957bd8f5baf753f5982142129"
   integrity sha512-2s47yzUxdexf1OhyRi4Em83iQk0aPvwTddtFz4hnSSw9dCEsLEGf6SwIO8ss/19S9iBb5sJaOuTvTGDeZI00BQ==
+
+normalize.css@^8.0.1:
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/normalize.css/-/normalize.css-8.0.1.tgz#9b98a208738b9cc2634caacbc42d131c97487bf3"
+  integrity sha512-qizSNPO93t1YUuUhP22btGOo3chcvDFqFaj2TRybP0DMxkHOCTYwp3n34fel4a31ORXy4m1Xq0Gyqpb5m33qIg==
 
 npm-run-path@^2.0.0:
   version "2.0.2"

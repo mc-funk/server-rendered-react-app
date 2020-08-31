@@ -25,33 +25,40 @@ app.get('/', async (_req, res) => {
   const { html, css, ids } = renderStatic(() =>
     renderToString(<App {...data} />)
   );
+  console.log('css', css.toString());
   // renderToStaticMarkup may be better as it removes react-specific markup that we would not need for static rendering
 
   const index = readFileSync(`public/index.html`, `utf8`);
+
   const browser = await puppeteer.launch();
 
   try {
     const page = await browser.newPage();
+    // await page.addStyleTag({
+    //   url: 'https://cloud.typography.com/6966154/6397212/css/fonts.css',
+    // }); // Failing with 403, is something else needed?
+    await page.addStyleTag({
+      path: `node_modules/@pluralsight/ps-design-system-core/dist/index.css`,
+    });
+    await page.addStyleTag({
+      content: css.toString(),
+    });
+    await page.addScriptTag({
+      url: 'https://unpkg.com/react@16/umd/react.development.js',
+    });
 
-    // await page.addScriptTag({
-    //   url: 'https://unpkg.com/react@16/umd/react.development.js',
-    // });
+    // await page.
 
     await page.evaluate(
-      (index, html, css) => {
-        const head = document.createElement('head');
-        const style = document.createElement('style');
-        style.type = 'text/css';
-        style.appendChild(document.createTextNode(css));
-        document.head.append(style);
-
+      (index, html) => {
         const body = document.createElement('body');
         body.innerHTML = index.replace('{{rendered}}', html);
         document.body = body;
       },
       index,
-      html,
-      css
+      html
+      // css
+      // psdsCss
     );
 
     await page.screenshot({ path: 'public/screenshot.png' });
